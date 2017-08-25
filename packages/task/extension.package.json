@@ -1,0 +1,18 @@
+{
+  "name": "@theia/task",
+  "version": "0.1.1",
+  "description": "Theia - Task extension",
+  "dependencies": {
+    "@theia/core": "^0.1.1",
+    "@theia/process": "^0.1.1",
+    "@theia/terminal": "^0.1.1",
+    "@theia/workspace": "^0.1.1"
+  },
+  "devDependencies": {},
+  "theiaExtensions": [
+    {
+      "frontend": "lib/browser/task-frontend-module",
+      "backend": "lib/node/task-backend-module"
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+    // comment
+    "tasks": [
+        {
+            "label": "list all files",
+            "processType": "terminal",
+            "command": "ls",
+            "args": [
+                "-alR",
+                "/"
+            ],
+            "cwd": "",
+            "errorMatcherName": "",
+            "errorMatcherOptions": ""
+        },
+        {
+            "label": "test task",
+            "processType": "terminal",
+            // bug: relative path doesn't work ATM
+            // "command": "packages/task/src/node/test-resources/task",
+            "command": "/opt/ericsson-dev/theia/packages/task/src/node/test-resources/task",
+            "args": [
+                "5",
+                "4",
+                "3",
+                "2",
+                "1",
+                "Done!!!"
+            ],
+            "cwd": "",
+            "errorMatcherName": "",
+            "errorMatcherOptions": ""
+        }
+    ]
+}

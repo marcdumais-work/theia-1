@@ -65,6 +65,7 @@ export class TerminalFrontendContribution implements CommandContribution, MenuCo
     protected async newTerminal(): Promise<void> {
         await this.widgetManager.getOrCreateWidget(TERMINAL_WIDGET_FACTORY_ID, <TerminalWidgetFactoryOptions>{
             created: new Date().toString()
+            // exitedLabel: '<terminated>',
         });
     }
 
