@@ -15,11 +15,12 @@ import { TaskManager } from './task-manager';
 import * as fs from 'fs';
 import * as path from 'path';
 import URI from "@theia/core/lib/common/uri";
-import * as jsoncparser from "jsonc-parser";
+import * as jsoncparser from 'jsonc-parser';
 import { ParseError } from "jsonc-parser";
 import { FileSystemWatcherServer, DidFilesChangedParams/*, FileChange*/ } from '@theia/filesystem/lib/common/filesystem-watcher-protocol';
 import { FileSystem } from '@theia/filesystem/lib/common';
 import { WorkspaceServer } from '@theia/workspace/lib/common';
+import { OutputParser, IOutputParser, IParsedEntry } from './output-parser/output-parser';
 
 export const TaskFileUri = Symbol("TaskFileURI");
 export type TaskFileUri = MaybePromise<URI>;
@@ -45,7 +46,8 @@ export class TaskServer implements ITaskServer {
         @inject(FileSystemWatcherServer) protected readonly watcherServer: FileSystemWatcherServer,
         @inject(WorkspaceServer) protected readonly workspaceServer: WorkspaceServer,
         @inject(FileSystem) protected readonly fileSystem: FileSystem,
-        @inject(TaskFileUri) protected readonly taskFileUriPromise: TaskFileUri
+        @inject(TaskFileUri) protected readonly taskFileUriPromise: TaskFileUri,
+        @inject(IOutputParser) protected readonly errorParser: OutputParser
     ) {
         this.taskFileUri = Promise.resolve(taskFileUriPromise).then(uri => {
             logger.info(`task server: attempting to us  using task file: ${uri.toString()}`);
@@ -139,9 +141,44 @@ export class TaskServer implements ITaskServer {
 
             task = new Task(
                 this.taskManager,
+                this.errorParser,
+                this.logger,
                 proc,
+                options.cwd,
                 options.errorMatcherName
             );
+
+            // emit error marker for entry found by parser
+            this.errorParser.on('entry-found', entry => {
+                if (this.client !== undefined) {
+                    const e: IParsedEntry = entry;
+                    this.client.onTaskOutputEntryFound(
+                        {
+                            'taskId': task.id,
+                            'entry': {
+                                'uri': e.file,
+                                'owner': 'marc',
+                                'kind': 'problem',
+                                'data': {
+                                    'range': {
+                                        'start': {
+                                            'line': 1,
+                                            'character': 1
+                                        },
+                                        'end': {
+                                            'line': 1,
+                                            'character': 2
+                                        }
+                                    },
+                                    'severity': 1,
+                                    'code': e.code,
+                                    'source': e.file,
+                                    'message': e.message
+                                }
+                            }
+                        });
+                }
+            });
 
             // when underlying process exits, notify tasks listeners
             const toDispose = new DisposableCollection();

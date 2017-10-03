@@ -15,9 +15,11 @@ import { TaskWatcher } from '../common/task-watcher';
 import { ILogger } from '@theia/core/lib/common/logger';
 import { WorkspaceServer } from '@theia/workspace/lib/common';
 import URI from "@theia/core/lib/common/uri";
+import { IOutputParser, OutputParser } from './output-parser/output-parser';
 
 export default new ContainerModule(bind => {
 
+    bind(IOutputParser).to(OutputParser);
     bind(TaskManager).toSelf().inSingletonScope();
     bind(ITaskServer).to(TaskServer).inSingletonScope();
     bind(Task).toSelf().inTransientScope();
