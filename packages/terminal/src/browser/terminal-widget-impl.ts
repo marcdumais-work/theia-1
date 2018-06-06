@@ -239,7 +239,7 @@ export class TerminalWidgetImpl extends TerminalWidget implements StatefulWidget
     protected async createTerminal(): Promise<number> {
         let rootURI = this.options.cwd;
         if (!rootURI) {
-            const root = await this.workspaceService.root;
+            const root = (await this.workspaceService.workspace).workspaceFolder;
             rootURI = root && root.uri;
         }
         const { cols, rows } = this.term;

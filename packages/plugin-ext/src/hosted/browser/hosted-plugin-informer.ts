@@ -55,10 +55,11 @@ export class HostedPluginInformer implements FrontendApplicationContribution {
     protected readonly frontendApplicationStateService: FrontendApplicationStateService;
 
     public initialize(): void {
-        this.workspaceService.root.then(root => {
+        this.workspaceService.workspace.then(data => {
+            const workspaceFolder = data.workspaceFolder;
             this.hostedPluginServer.getHostedPlugin().then(pluginMetadata => {
                 if (pluginMetadata) {
-                    this.updateTitle(root);
+                    this.updateTitle(workspaceFolder);
 
                     this.entry = {
                         text: `$(cube) ${HostedPluginInformer.DEVELOPMENT_HOST_TITLE}`,

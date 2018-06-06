@@ -14,9 +14,9 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
+import { injectable, inject, postConstruct } from "inversify";
 import { DefaultUriLabelProviderContribution } from "@theia/core/lib/browser/label-provider";
 import URI from "@theia/core/lib/common/uri";
-import { injectable, inject } from "inversify";
 import { WorkspaceService } from "./workspace-service";
 import { FileSystem, FileStat } from "@theia/filesystem/lib/common";
 import { MaybePromise } from "@theia/core";
@@ -24,15 +24,19 @@ import { MaybePromise } from "@theia/core";
 @injectable()
 export class WorkspaceUriLabelProviderContribution extends DefaultUriLabelProviderContribution {
 
+    @inject(WorkspaceService)
+    protected wsService: WorkspaceService;
+    @inject(FileSystem)
+    protected fileSystem: FileSystem;
+
     wsRoot: string;
-    constructor(@inject(WorkspaceService) wsService: WorkspaceService,
-        @inject(FileSystem) protected fileSystem: FileSystem) {
-        super();
-        wsService.root.then(root => {
-            if (root) {
-                this.wsRoot = new URI(root.uri).toString(true);
-            }
-        });
+
+    @postConstruct()
+    protected async init(): Promise<void> {
+        const root = (await this.wsService.workspace).workspaceFolder;
+        if (root) {
+            this.wsRoot = new URI(root.uri).toString(true);
+        }
     }
 
     canHandle(element: object): number {

@@ -30,9 +30,10 @@ export class WorkspaceMain {
     constructor(rpc: RPCProtocol, workspaceService: WorkspaceService) {
         this.proxy = rpc.getProxy(MAIN_RPC_CONTEXT.WORKSPACE_EXT);
 
-        workspaceService.root.then((root) => {
-            if (root) {
-                this.workspaceRoot = Uri.parse(root.uri);
+        workspaceService.workspace.then(data => {
+            const workspaceFolder = data.workspaceFolder;
+            if (workspaceFolder) {
+                this.workspaceRoot = Uri.parse(workspaceFolder.uri);
                 const workspacePath = new Path(this.workspaceRoot.path);
 
                 const folder: WorkspaceFolder = {

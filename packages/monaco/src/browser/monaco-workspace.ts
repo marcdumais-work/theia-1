@@ -97,12 +97,14 @@ export class MonacoWorkspace implements lang.Workspace {
 
     @postConstruct()
     protected init(): void {
-        this.workspaceService.root.then(rootStat => {
+        this.workspaceService.workspace.then(data => {
+            const rootStat = data.workspaceFolder;
             if (rootStat) {
                 this._rootUri = rootStat.uri;
                 this.resolveReady();
             }
         });
+
         for (const model of this.textModelService.models) {
             this.fireDidOpen(model);
         }

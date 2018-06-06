@@ -15,7 +15,7 @@
  ********************************************************************************/
 
 import { Git, Repository } from '../common';
-import { injectable, inject } from "inversify";
+import { injectable, inject } from 'inversify';
 import { WorkspaceService } from '@theia/workspace/lib/browser/workspace-service';
 import { Event, Emitter } from '@theia/core';
 
@@ -38,6 +38,9 @@ export class GitRepositoryProvider {
     }
 
     protected async initialize(): Promise<void> {
+        this.workspaceService.onWorkspaceChanged(event => {
+            this.refresh();
+        });
         await this.refresh({ maxCount: 1 });
         await this.refresh();
     }
@@ -74,14 +77,21 @@ export class GitRepositoryProvider {
     }
 
     async refresh(options?: GitRefreshOptions): Promise<void> {
-        const root = await this.workspaceService.root;
+        const root = (await this.workspaceService.workspace).workspaceFolder;
         if (!root) {
             return;
         }
-        const repositories = await this.git.repositories(root.uri, {
-            ...options
+        const roots = (await this.workspaceService.workspace).roots;
+        const repoUris = new Map<string, Repository>();
+        const reposOfRoots = await Promise.all(
+            roots.map(r => this.git.repositories(r.uri, { ...options }))
+        );
+        reposOfRoots.forEach(reposPerRoot => {
+            reposPerRoot.forEach(repoOfOneRoot => {
+                repoUris.set(repoOfOneRoot.localUri, repoOfOneRoot);
+            });
         });
-        this._allRepositories = repositories;
+        this._allRepositories = Array.from(repoUris.values());
         const selectedRepository = this._selectedRepository;
         if (!selectedRepository || !this.exists(selectedRepository)) {
             this.selectedRepository = this._allRepositories[0];

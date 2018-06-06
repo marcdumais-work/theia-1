@@ -77,7 +77,8 @@ export class TaskService implements TaskConfigurationClient {
     @postConstruct()
     protected init(): void {
         // wait for the workspace root to be set
-        this.workspaceService.root.then(async root => {
+        this.workspaceService.workspace.then(async data => {
+            const root = data.workspaceFolder;
             if (root) {
                 this.configurationFileFound = await this.taskConfigurations.watchConfigurationFile(root.uri);
                 this.workspaceRootUri = root.uri;
