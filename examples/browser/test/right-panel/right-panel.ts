@@ -42,8 +42,13 @@ export class RightPanel {
     }
 
     isOutlineViewVisible(): boolean {
-        return (this.driver.element('#outline-view').getAttribute('class').split(' ').indexOf('p-mod-hidden') === -1)
-            && this.isPanelVisible();
+        return (this.isPanelVisible() && this.driver.isExisting('#outline-view'));
+    }
+
+    waitForOutlineView(): void {
+        this.driver.waitForExist('#outline-view');
+        // Wait for animations to finish
+        this.driver.pause(300);
     }
 
     protected isPanelVisible(): boolean {
