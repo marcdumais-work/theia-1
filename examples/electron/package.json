@@ -44,6 +44,8 @@
     "@theia/navigator": "^0.5.0",
     "@theia/outline-view": "^0.5.0",
     "@theia/output": "^0.5.0",
+    "@theia/plugin-ext": "^0.5.0",
+    "@theia/plugin-ext-vscode": "^0.5.0",
     "@theia/preferences": "^0.5.0",
     "@theia/preview": "^0.5.0",
     "@theia/process": "^0.5.0",
@@ -64,7 +66,7 @@
     "clean": "theia clean",
     "build": "theiaext compile && theia build --mode development",
     "watch": "concurrently -n compile,bundle \"theiaext watch --preserveWatchOutput\" \"theia build --watch --mode development\"",
-    "start": "theia start",
+    "start": "theia start --plugins=local-dir:../../plugins",
     "start:debug": "yarn start --log-level=debug",
     "test": "electron-mocha --timeout 60000 \"./lib/test/**/*.espec.js\"",
     "test:ui": "wdio wdio.conf.js"
