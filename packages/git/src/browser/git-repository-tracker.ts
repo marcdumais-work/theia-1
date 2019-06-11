@@ -49,13 +49,18 @@ export class GitRepositoryTracker {
                     this.onGitEventEmitter.fire(event);
                 }));
                 this.workingDirectoryStatus = await this.git.status(repository);
+                this.onGitEventEmitter.fire({
+                    source: repository,
+                    status: this.workingDirectoryStatus
+                });
             }
         });
-        if (this.repositoryProvider.allRepositories.length === 0) {
-            await this.repositoryProvider.refresh();
-        }
         if (this.selectedRepository) {
             this.workingDirectoryStatus = await this.git.status(this.selectedRepository);
+            this.onGitEventEmitter.fire({
+                source: this.selectedRepository,
+                status: this.workingDirectoryStatus
+            });
         }
     }
 
@@ -96,7 +101,7 @@ export class GitRepositoryTracker {
 
     getPath(uri: URI): string | undefined {
         const { repositoryUri } = this;
-        const relativePath = repositoryUri && repositoryUri.relative(uri);
+        const relativePath = repositoryUri && Repository.relativePath(repositoryUri, uri);
         return relativePath && relativePath.toString();
     }
 

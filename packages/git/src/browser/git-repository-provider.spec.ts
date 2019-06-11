@@ -30,7 +30,8 @@ import { LocalStorageService, StorageService } from '@theia/core/lib/browser';
 import { GitRepositoryProvider } from './git-repository-provider';
 import * as sinon from 'sinon';
 import * as chai from 'chai';
-import { ScmService } from '@theia/scm/lib/browser';
+import { GitCommitMessageValidator } from './git-commit-message-validator';
+import { ScmService } from '@theia/scm/lib/browser/scm-service';
 const expect = chai.expect;
 
 disableJSDOM();
@@ -92,6 +93,7 @@ describe('GitRepositoryProvider', () => {
         testContainer.bind(FileSystemWatcher).toConstantValue(mockFileSystemWatcher);
         testContainer.bind(StorageService).toConstantValue(mockStorageService);
         testContainer.bind(ScmService).toSelf().inSingletonScope();
+        testContainer.bind(GitCommitMessageValidator).toSelf().inSingletonScope();
 
         sinon.stub(mockWorkspaceService, 'onWorkspaceChanged').value(mockRootChangeEmitter.event);
         sinon.stub(mockFileSystemWatcher, 'onFilesChanged').value(mockFileChangeEmitter.event);
