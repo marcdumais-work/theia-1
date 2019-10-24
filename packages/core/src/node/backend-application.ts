@@ -94,6 +94,7 @@ export class BackendApplicationCliContribution implements CliContribution {
 export class BackendApplication {
 
     protected readonly app: express.Application = express();
+    protected finalPort: string;
 
     @inject(ApplicationPackage)
     protected readonly applicationPackage: ApplicationPackage;
@@ -140,6 +141,26 @@ export class BackendApplication {
         this.app.get('*.gif', this.serveGzipped.bind(this, 'image/gif'));
         this.app.get('*.png', this.serveGzipped.bind(this, 'image/png'));
         this.app.get('*.svg', this.serveGzipped.bind(this, 'image/svg+xml'));
+
+        /* Check request's origin - for Electron we expect that it should be local */
+        if (environment.electron.is()) {
+            this.app.use((request, response, next) => {
+                // compose "local" whitelist based on used port
+                const originsWhiteList = [
+                    `localhost:${this.finalPort}`,
+                    `127.0.0.1:${this.finalPort}`,
+                    `0.0.0.0:${this.finalPort}`
+                ];
+                const reqOrigin: string = request.headers.host === undefined ? '' : request.headers.host;
+
+                this.logger.info(`White-listed origins: ->${originsWhiteList}<-, actual origin: ->${reqOrigin}<-`);
+                if (!originsWhiteList.some(x => x === reqOrigin)) {
+                    this.logger.error(`Request's origin is not trusted - not responding: ${reqOrigin}`);
+                    return response.sendStatus(401);
+                }
+                next();
+            });
+        }
 
         for (const contribution of this.contributionsProvider.getContributions()) {
             if (contribution.configure) {
@@ -202,7 +223,8 @@ export class BackendApplication {
 
         server.listen(port, hostname, () => {
             const scheme = this.cliParams.ssl ? 'https' : 'http';
-            this.logger.info(`Theia app listening on ${scheme}://${hostname || 'localhost'}:${(server.address() as AddressInfo).port}.`);
+            this.finalPort = `${(server.address() as AddressInfo).port}`;
+            this.logger.info(`Theia app listening on ${scheme}://${hostname || 'localhost'}:${this.finalPort}.`);
             deferred.resolve(server);
         });
 
