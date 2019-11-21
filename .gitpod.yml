@@ -7,10 +7,11 @@ ports:
 - port: 5900
   onOpen: ignore
 tasks:
-- init: yarn
+- init: yarn && yarn run rebuild:electron
   command: >
     jwm &
-    yarn --cwd examples/browser start ../..
+    yarn --cwd examples/electron start ../..
+- command: sleep 20 && gp open demo.md
 github:
   prebuilds:
     pullRequestsFromForks: true
