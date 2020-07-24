@@ -109,6 +109,10 @@ notifications:
     on_success: change
     on_failure: always
     on_start: never
+stages:
+  - 3PP-license-check
+  - test
+  - deploy
 jobs:
   fast_finish: true
   include:
@@ -153,3 +157,13 @@ jobs:
           local-dir: gh-pages
           on:
             branch: master
+    - stage: 3PP-license-check
+      os: linux
+      install: skip
+      before_script: THEIA_SKIP_NPM_PREPARE=1 yarn prepare:licenseCheckProd
+      script: 
+        - yarn licenseCheck || true  # do not fail the build
+        - yarn post:licenseCheck
+        - cat DEPENDENCIES
+      skip_cleanup: true
+      cache: skip
