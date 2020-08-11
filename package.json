@@ -39,7 +39,8 @@
     "typedoc": "^0.17.7",
     "typedoc-plugin-external-module-map": "^1.2.1",
     "typescript": "^3.9.2",
-    "uuid": "^8.0.0"
+    "uuid": "^8.0.0",
+    "synp": "^1.7.1"
   },
   "scripts": {
     "preinstall": "node-gyp install",
@@ -72,7 +73,12 @@
     "publish:check": "node scripts/check-publish.js",
     "start:browser": "yarn rebuild:browser && yarn --cwd examples/browser start",
     "start:electron": "yarn rebuild:electron && yarn --cwd examples/electron start",
-    "download:plugins": "theia download:plugins"
+    "download:plugins": "theia download:plugins",
+    "prepare:licenseCheckProd": "git submodule add -f https://github.com/eclipse/dash-licenses.git && git submodule init && cd dash-licenses && mvn clean package && cd .. && rm -f package-lock.json && yarn install --skip-integrity-check --production",
+    "prepare:licenseCheck": "git submodule add -f https://github.com/eclipse/dash-licenses.git && git submodule init && cd dash-licenses && mvn clean package && cd .. && rm -f package-lock.json && yarn install --skip-integrity-check",
+    "licenseCheck": "rm -f package-lock.json && npx synp -s yarn.lock && java -Djdk.tls.client.protocols=\"TLSv1,TLSv1.1,TLSv1.2\" -jar dash-licenses/target/org.eclipse.dash.licenses* ./package-lock.json -batch 2000",
+    "post:licenseCheck": "git diff --exit-code DEPENDENCIES || echo \"\nChange(s) detected in DEPENDENCIES file - please check them in and update the PR\"",
+    "clean:licenseCheck": "git submodule deinit -f dash-licenses && git rm -f dash-licenses && git rm -f .gitmodules"
   },
   "workspaces": [
     "dev-packages/*",
