@@ -20,7 +20,6 @@
     "electron-replace-ffmpeg": "electron-replace-ffmpeg.js"
   },
   "dependencies": {
-    "electron": "^9.0.2",
     "electron-download": "^4.1.1",
     "electron-store": "^5.1.1",
     "fix-path": "^3.0.0",
@@ -28,6 +27,9 @@
     "node-gyp": "^7.0.0",
     "unzipper": "^0.9.11",
     "yargs": "^15.3.1"
+  },
+  "devDependencies": {
+    "electron": "^9.0.2"
   },
   "scripts": {
     "postinstall": "node scripts/post-install.js",
